@@ -13,6 +13,7 @@ django-channels = "*"
 django-environ = "*"
 gunicorn = "*"
 pillow = "*"
+mysqlclient = "*"
 
 [dev-packages]
 
