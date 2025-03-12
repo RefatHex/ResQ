@@ -12,6 +12,7 @@ psycopg2-binary = "*"
 django-channels = "*"
 django-environ = "*"
 gunicorn = "*"
+pillow = "*"
 
 [dev-packages]
 

@@ -9,19 +9,13 @@ class EmergencyReport(models.Model):
         ('SPECTATOR', 'Spectator'),
         ('VICTIM', 'Victim'),
     ]
-    REPORT_TYPE_CHOICES = [
-        ('FIRE', 'Fire'),
-        ('ACCIDENT', 'Accident'),
-        ('NATURAL_DISASTER', 'Natural Disaster'),
-    ]
     reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports')
     reporter_type = models.CharField(max_length=20, choices=REPORTER_TYPE_CHOICES)
-    report_type = models.CharField(max_length=20, choices=REPORT_TYPE_CHOICES)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='emergency_reports')  
-    description = models.TextField(blank=True, null=True)
-    is_emergency = models.BooleanField(default=False)  # Panic button
+    description = models.TextField() 
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='emergency_reports')
+    is_emergency = models.BooleanField(default=False)  
     status = models.CharField(max_length=20, default='PENDING')
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True)  
 
     class Meta:
         indexes = [
@@ -29,4 +23,4 @@ class EmergencyReport(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.reporter.username} - {self.report_type}"
+        return f"{self.reporter.username} - {self.timestamp}"
