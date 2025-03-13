@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     'location',
     'emergency',
     'map_services',
-    'rest_framework_simplejwt',  # JWT for API auth
+    'rest_framework_simplejwt',
     'dashboards',
     'chatbot',
     'notifications',
