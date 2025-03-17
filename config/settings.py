@@ -172,7 +172,14 @@ REST_FRAMEWORK = {
 }
 
 from datetime import timedelta
+
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access token expires in 1 hour
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Refresh token expires in 1 day
+    'ROTATE_REFRESH_TOKENS': True,                  # Issue new refresh token on refresh
+    'BLACKLIST_AFTER_ROTATION': True,               # Blacklist old refresh tokens
+    'UPDATE_LAST_LOGIN': True,                      # Update last login on token refresh
+    'ALGORITHM': 'HS256',                           # Use HMAC SHA-256 for signing
+    'SIGNING_KEY': SECRET_KEY,                      # Use Django's SECRET_KEY
+    'AUTH_HEADER_TYPES': ('Bearer',),               # Authorization header type
 }
