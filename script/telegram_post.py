@@ -5,16 +5,30 @@ from decouple import config
 TELEGRAM_BOT_TOKEN = config("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = config("TELEGRAM_CHAT_ID")
 
-def send_to_telegram(message):
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    params = {
-        "chat_id": TELEGRAM_CHAT_ID,
-        "text": message,
-    }
-    response = requests.post(url, params=params)
-    if response.status_code == 200:
-        print("Message sent to Telegram successfully!")
-    else:
-        print(f"Error sending to Telegram: {response.status_code}, {response.text}")
-        
-send_to_telegram("Hello, this is a test message from Python!")
+def send_photo_to_telegram(photo_path, caption=""):
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
+    with open(photo_path, "rb") as photo:
+        files = {"photo": photo}
+        data = {
+            "chat_id": TELEGRAM_CHAT_ID,
+            "caption": caption,
+        }
+        response = requests.post(url, files=files, data=data)
+        if response.status_code == 200:
+            print("Photo sent to Telegram successfully!")
+        else:
+            print(f"Error sending photo to Telegram: {response.status_code}, {response.text}")
+
+def send_video_to_telegram(video_path, caption=""):
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendVideo"
+    with open(video_path, "rb") as video:
+        files = {"video": video}
+        data = {
+            "chat_id": TELEGRAM_CHAT_ID,
+            "caption": caption,
+        }
+        response = requests.post(url, files=files, data=data)
+        if response.status_code == 200:
+            print("Video sent to Telegram successfully!")
+        else:
+            print(f"Error sending video to Telegram: {response.status_code}, {response.text}")
