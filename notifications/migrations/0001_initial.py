@@ -16,9 +16,16 @@ class Migration(migrations.Migration):
             name='Notification',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('title', models.CharField(max_length=255)),
                 ('message', models.TextField()),
+                ('notification_type', models.CharField(choices=[('EMERGENCY', 'Emergency Alert'), ('UPDATE', 'Status Update'), ('SYSTEM', 'System Notification'), ('OTHER', 'Other')], default='OTHER', max_length=20)),
+                ('is_read', models.BooleanField(default=False)),
+                ('sent_to_device', models.BooleanField(default=False)),
                 ('status', models.CharField(default='PENDING', max_length=20)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
             ],
+            options={
+                'ordering': ['-timestamp'],
+            },
         ),
     ]

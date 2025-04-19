@@ -17,11 +17,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='notification',
-            name='user',
+            name='recipient',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notifications', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddIndex(
             model_name='notification',
-            index=models.Index(fields=['user', 'timestamp'], name='notificatio_user_id_71c65a_idx'),
+            index=models.Index(fields=['recipient', 'timestamp'], name='notificatio_recipie_71c65a_idx'),
         ),
     ]

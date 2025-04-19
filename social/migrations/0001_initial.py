@@ -26,17 +26,4 @@ class Migration(migrations.Migration):
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
             ],
         ),
-        migrations.CreateModel(
-            name='Hazard',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('hazard_type', models.CharField(max_length=20)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('location', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='location.location')),
-            ],
-            options={
-                'ordering': ['-timestamp'],
-            },
-        ),
     ]

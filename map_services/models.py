@@ -7,7 +7,7 @@ class RouteRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     start_location = models.CharField(max_length=255)
     end_location = models.CharField(max_length=255)
-    waypoints = models.JSONField(blank=True, null=True)  # Format: [{"lat": 40.7128, "lng": -74.0060}]
+    waypoints = models.JSONField(blank=True, null=True)  
     avoid_hazards = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 

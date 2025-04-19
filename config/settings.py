@@ -13,7 +13,7 @@ from decouple import config
 import os
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -40,6 +40,18 @@ CORS_ALLOW_METHODS = [
     'DELETE',
     'OPTIONS',
 ]
+
+# Firebase Configuration - client-side only config
+FIREBASE_CONFIG = {
+    "apiKey": config('FIREBASE_API_KEY'),
+    "authDomain": config('FIREBASE_AUTH_DOMAIN'),
+    "projectId": config('FIREBASE_PROJECT_ID'),
+    "storageBucket": config('FIREBASE_STORAGE_BUCKET'),
+    "messagingSenderId": config('FIREBASE_MESSAGING_SENDER_ID'),
+    "appId": config('FIREBASE_APP_ID'),
+    "measurementId": config('FIREBASE_MEASUREMENT_ID')
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -71,6 +83,8 @@ INSTALLED_APPS = [
     'chatbot',
     'notifications',
     'analytics',
+    'django_filters',
+    'firebase_auth',
 ]
 
 MIDDLEWARE = [
@@ -158,16 +172,39 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# Social Media API credentials
+SOCIAL_MEDIA = {
+    'FACEBOOK': {
+        'PAGE_ID': config('FACEBOOK_PAGE_ID', default=''),
+        'ACCESS_TOKEN': config('FACEBOOK_ACCESS_TOKEN', default=''),
+    },
+    'TELEGRAM': {
+        'BOT_TOKEN': config('TELEGRAM_BOT_TOKEN', default=''),
+        'CHAT_ID': config('TELEGRAM_CHAT_ID', default=''),
+    },
+    'DISCORD': {
+        'WEBHOOK_URL': config('DISCORD_WEBHOOK_URL', default=''),
+    }
+}
 
+# File upload settings
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+FILE_UPLOAD_PERMISSIONS = 0o644
+
+# Temporary directory for file handling
+TEMP_MEDIA_ROOT = os.path.join(MEDIA_ROOT, 'tmp')
+os.makedirs(TEMP_MEDIA_ROOT, exist_ok=True)
 
 AUTH_USER_MODEL = 'users.User'  # Custom user model
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT for API auth
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'firebase_auth.authentication.FirebaseAuthentication',  # Re-enable after migration
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  # Require auth for all endpoints
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
 

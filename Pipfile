@@ -14,8 +14,10 @@ django-environ = "*"
 gunicorn = "*"
 pillow = "*"
 mysqlclient = "*"
+django-filter = "*"
+firebase-admin = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.12"
+python_version = "*"

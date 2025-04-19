@@ -15,13 +15,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='hazard',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AddIndex(
-            model_name='hazard',
-            index=models.Index(fields=['hazard_type', 'timestamp'], name='social_haza_hazard__448c6f_idx'),
-        ),
+        # Since we're removing the Hazard model, we need to remove these operations
+        # If needed, you would need to create a new migration to handle this change properly
     ]

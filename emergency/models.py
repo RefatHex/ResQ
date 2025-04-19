@@ -9,13 +9,22 @@ class EmergencyReport(models.Model):
         ('SPECTATOR', 'Spectator'),
         ('VICTIM', 'Victim'),
     ]
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'), 
+        ('RESPONDING', 'Emergency Services Responding'),
+        ('ON_SCENE', 'Emergency Services On Scene'),
+        ('RESOLVED', 'Resolved'),
+    ]
     reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports')
     reporter_type = models.CharField(max_length=20, choices=REPORTER_TYPE_CHOICES)
     description = models.TextField() 
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='emergency_reports')
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
     is_emergency = models.BooleanField(default=False)  
-    status = models.CharField(max_length=20, default='PENDING')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     timestamp = models.DateTimeField(auto_now_add=True)  
+    tags = models.ManyToManyField('EmergencyTag', related_name='reports', blank=True)
 
     class Meta:
         indexes = [
@@ -24,3 +33,25 @@ class EmergencyReport(models.Model):
 
     def __str__(self):
         return f"{self.reporter.username} - {self.timestamp}"
+
+    def save(self, *args, **kwargs):
+        if self.location and hasattr(self.location, 'latitude') and hasattr(self.location, 'longitude'):
+            self.latitude = self.location.latitude
+            self.longitude = self.location.longitude
+        super().save(*args, **kwargs)
+
+
+class EmergencyTag(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50)
+    EMERGENCY_TYPE_CHOICES = [
+        ('FIRE', 'Fire Emergency'),
+        ('NATURAL', 'Natural Disaster'),
+        ('TRAFFIC', 'Traffic Accident'),
+        ('OTHER', 'Other Emergency'),
+    ]
+    emergency_type = models.CharField(max_length=20, choices=EMERGENCY_TYPE_CHOICES, default='OTHER')
+    description = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return self.name

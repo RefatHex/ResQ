@@ -32,3 +32,5 @@ def send_video_to_telegram(video_path, caption=""):
             print("Video sent to Telegram successfully!")
         else:
             print(f"Error sending video to Telegram: {response.status_code}, {response.text}")
+            return False
+        return True
