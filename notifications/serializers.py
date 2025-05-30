@@ -16,3 +16,4 @@ class DeviceTokenSerializer(serializers.ModelSerializer):
 
 class FCMTokenSerializer(serializers.Serializer):
     fcm_token = serializers.CharField(max_length=255, required=True)
+    device_type = serializers.ChoiceField(choices=DeviceToken.DEVICE_TYPES, default='ANDROID')

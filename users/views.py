@@ -1,27 +1,63 @@
+from django.contrib.auth import get_user_model, authenticate
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, mixins, permissions, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, LoginSerializer, RegisterSerializer
 from .permissions import IsSameUserOrAdmin
 from location.models import Location
 from location.serializers import LocationSerializer
 
+User = get_user_model()
+
 class LoginView(TokenObtainPairView):
     """Custom token view that returns user info along with tokens"""
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        # If login successful, include user data
-        if response.status_code == 200:
-            user = User.objects.get(username=request.data.get('username'))
-            user_data = UserSerializer(user).data
-            response.data['user'] = user_data
-        return response
+        try:
+            # Check if credentials are provided
+            if not request.data.get('username') or not request.data.get('password'):
+                return Response(
+                    {"detail": "Username and password are required"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+            # Try to authenticate and generate tokens
+            # Wrap this in try-except to catch authentication errors
+            try:
+                response = super().post(request, *args, **kwargs)
+                
+                # If login successful, include user data
+                if response.status_code == 200:
+                    user = User.objects.get(username=request.data.get('username'))
+                    user_data = UserSerializer(user).data
+                    response.data['user'] = user_data
+                    return response
+                return response
+            except Exception as auth_error:
+                # Handle authentication failure specifically
+                return Response(
+                    {"detail": "Invalid credentials"}, 
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+            
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            # Log the error for debugging
+            print(f"Login error: {str(e)}")
+            return Response(
+                {"detail": "Invalid credentials"}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
 class UserViewSet(mixins.CreateModelMixin,
                  mixins.RetrieveModelMixin,
@@ -55,6 +91,10 @@ class UserViewSet(mixins.CreateModelMixin,
     
     def create(self, request, *args, **kwargs):
         """Register new user with location"""
+        print("\n=== UserViewSet.create Request Body ===")
+        print(f"Data: {request.data}")
+        print("=======================================\n")
+        
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -113,3 +153,106 @@ class UserListView(generics.ListAPIView):
             queryset = queryset.filter(role__in=['FIRE_STATION', 'POLICE', 'RED_CRESCENT'])
         
         return queryset
+
+class UserLoginView(APIView):
+    """
+    View to handle user login with plain text password
+    """
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            username = serializer.validated_data['username']
+            password = serializer.validated_data['password']
+            
+            print(f"\n=== UserLoginView.post ===")
+            print(f"Login attempt: username={username}, password={password}")
+            
+            # Custom authentication logic for plain text passwords
+            try:
+                # Try with username
+                user = User.objects.get(username=username)
+                print(f"Found user by username, stored password: '{user.password}'")
+                if user.password != password:
+                    print(f"Password mismatch: stored='{user.password}', provided='{password}'")
+                    user = None
+            except User.DoesNotExist:
+                try:
+                    # Try with email
+                    user = User.objects.get(email=username)
+                    print(f"Found user by email, stored password: '{user.password}'")
+                    if user.password != password:
+                        print(f"Password mismatch: stored='{user.password}', provided='{password}'")
+                        user = None
+                except User.DoesNotExist:
+                    print("User not found")
+                    user = None
+            
+            if user:
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    'user': UserSerializer(user).data
+                })
+            
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserRegistrationView(APIView):
+    """
+    View to handle user registration with plain text password
+    """
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        print("\n=== UserRegistrationView Request Body ===")
+        print(f"Data: {request.data}")
+        print("========================================\n")
+        
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            # Create user with plain text password using the manager's create_user method
+            password = serializer.validated_data.get('password')
+            print(f"Password before user creation: {password}")
+            
+            user = User.objects.create_user(
+                username=serializer.validated_data['username'],
+                email=serializer.validated_data['email'],
+                password=password,  # This will be stored as plain text by our custom manager
+                first_name=serializer.validated_data.get('first_name', ''),
+                last_name=serializer.validated_data.get('last_name', ''),
+                phone_number=serializer.validated_data.get('phone_number', ''),
+                role=serializer.validated_data.get('role', 'CITIZEN'),
+            )
+            
+            # Set location separately if provided
+            location = serializer.validated_data.get('location', None)
+            if location:
+                user.location = location
+                user.save()
+                
+            print(f"User password after creation: {user.password}")
+            
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                'user': UserSerializer(user).data,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
+            }, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserDetailView(generics.RetrieveUpdateAPIView):
+    """
+    Retrieve or update user details
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    
+    def get_object(self):
+        return self.request.user

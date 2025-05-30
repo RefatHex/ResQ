@@ -16,6 +16,7 @@ pillow = "*"
 mysqlclient = "*"
 django-filter = "*"
 firebase-admin = "*"
+python-decouple = "*"
 
 [dev-packages]
 

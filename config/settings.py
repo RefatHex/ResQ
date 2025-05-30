@@ -26,11 +26,13 @@ SECRET_KEY = 'django-insecure-c+$zl7)gh*@rlb8wyn8=549l$_ojw(i&xlci^t^p$k865a2z$!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.0.2.2']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://yourfrontenddomain.com",
+    "http://10.0.2.2:8000",
+    "http://10.0.2.2:3000",
 ]
 CORS_ALLOW_METHODS = [
     'GET',
@@ -197,6 +199,12 @@ TEMP_MEDIA_ROOT = os.path.join(MEDIA_ROOT, 'tmp')
 os.makedirs(TEMP_MEDIA_ROOT, exist_ok=True)
 
 AUTH_USER_MODEL = 'users.User'  # Custom user model
+
+# Add authentication backends
+AUTHENTICATION_BACKENDS = [
+    'users.backends.PlainTextPasswordBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from .models import Notification
 from .serializers import NotificationSerializer, FCMTokenSerializer
+from users.models import DeviceToken
 
 class NotificationPagination(PageNumberPagination):
     page_size = 20
@@ -65,8 +66,23 @@ def register_fcm_token(request):
     serializer = FCMTokenSerializer(data=request.data)
     if serializer.is_valid():
         user = request.user
-        user.fcm_token = serializer.validated_data['fcm_token']
+        fcm_token = serializer.validated_data['fcm_token']
+        device_type = serializer.validated_data.get('device_type', 'ANDROID')
+        
+        # Save in both user model for backward compatibility
+        user.fcm_token = fcm_token
         user.save()
+        
+        # Create or update DeviceToken entry
+        device_token, created = DeviceToken.objects.update_or_create(
+            user=user,
+            token=fcm_token,
+            defaults={
+                'device_type': device_type,
+                'is_active': True
+            }
+        )
+        
         return Response({'status': 'FCM token registered'}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

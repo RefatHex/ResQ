@@ -65,9 +65,11 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
                         username = f"{base_username}_{counter}"
                         counter += 1
                     
+                    # Create user with plain text password (using firebase_uid as password)
                     user = User.objects.create_user(
                         username=username,
                         email=email,
+                        password=firebase_uid, # Store firebase_uid as plain text password
                         firebase_uid=firebase_uid
                     )
                     
