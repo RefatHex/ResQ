@@ -18,6 +18,7 @@ django-filter = "*"
 firebase-admin = "*"
 python-decouple = "*"
 requests = "*"
+google-generativeai = "*"
 
 [dev-packages]
 
