@@ -54,6 +54,9 @@ FIREBASE_CONFIG = {
     "measurementId": config('FIREBASE_MEASUREMENT_ID')
 }
 
+# Gemini AI Configuration
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',

@@ -17,6 +17,7 @@ mysqlclient = "*"
 django-filter = "*"
 firebase-admin = "*"
 python-decouple = "*"
+requests = "*"
 
 [dev-packages]
 

@@ -638,6 +638,202 @@ Authorization: Firebase {firebase_id_token}
 ]
 ```
 
+## Chatbot & AI Assistance
+
+ResQ includes an intelligent AI chatbot powered by Google's Gemini AI that provides emergency guidance and support. The chatbot maintains conversation history and provides contextual responses based on user roles and emergency scenarios.
+
+### Send Message to Chatbot
+
+**Endpoint**: `POST /chatbot/chat/`
+
+**Description**: Send a message to the AI chatbot and receive emergency guidance
+
+**Authentication**: Required
+
+**Request Body**:
+
+```json
+{
+  "message": "What should I do if there's a fire in my building?"
+}
+```
+
+**Response (200 OK)**:
+
+```json
+{
+  "id": "12fa85f64-5717-4562-b3fc-2c963f66afb4",
+  "message": "What should I do if there's a fire in my building?",
+  "response": "🔥 **FIRE EMERGENCY PROTOCOL:**\n\n1. **IMMEDIATE ACTION**: Call emergency services (911) immediately\n2. **EVACUATE SAFELY**: Leave the building via the nearest safe exit\n3. **STAY LOW**: Crawl under smoke to avoid inhalation\n4. **DON'T USE ELEVATORS**: Always use stairs during fire emergencies\n5. **MEETING POINT**: Go to your designated assembly area\n6. **DON'T RE-ENTER**: Never go back inside for belongings\n\nIs this an active emergency? If so, please call emergency services immediately and use our emergency reporting feature.",
+  "timestamp": "2025-04-15T12:00:33Z",
+  "user_role": "CITIZEN"
+}
+```
+
+### Send Message via ViewSet
+
+**Endpoint**: `POST /chatbot/sessions/send_message/`
+
+**Description**: Send a message using the ChatViewSet for more detailed session management
+
+**Authentication**: Required
+
+**Request Body**:
+
+```json
+{
+  "message": "How do I perform CPR?"
+}
+```
+
+**Response (201 Created)**:
+
+```json
+{
+  "id": "13fa85f64-5717-4562-b3fc-2c963f66afb5",
+  "message": "How do I perform CPR?",
+  "response": "🚑 **CPR (Cardiopulmonary Resuscitation) Steps:**\n\n**FIRST: Call emergency services (911) immediately**\n\n**For Adults:**\n1. **Check Responsiveness**: Tap shoulders, shout \"Are you okay?\"\n2. **Position**: Place on firm, flat surface\n3. **Hand Placement**: Heel of hand on center of chest, between nipples\n4. **Compressions**: Push hard and fast, at least 2 inches deep\n5. **Rate**: 100-120 compressions per minute\n6. **Count**: 30 compressions, then 2 rescue breaths\n7. **Continue**: Until emergency services arrive\n\n**Important**: Only perform if trained. If untrained, focus on continuous chest compressions.\n\nIs this an emergency situation happening now?",
+  "timestamp": "2025-04-15T12:05:33Z"
+}
+```
+
+### Get Chat Session History
+
+**Endpoint**: `GET /chatbot/sessions/session_history/?limit=10`
+
+**Description**: Retrieve chat history for the current user
+
+**Authentication**: Required
+
+**Query Parameters**:
+
+- `limit`: Number of recent sessions to retrieve (default: 20)
+
+**Response (200 OK)**:
+
+```json
+[
+  {
+    "id": "13fa85f64-5717-4562-b3fc-2c963f66afb5",
+    "user": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "user_username": "john_doe",
+    "message": "How do I perform CPR?",
+    "response": "🚑 **CPR (Cardiopulmonary Resuscitation) Steps:**\n\n**FIRST: Call emergency services (911) immediately**...",
+    "timestamp": "2025-04-15T12:05:33Z"
+  },
+  {
+    "id": "12fa85f64-5717-4562-b3fc-2c963f66afb4",
+    "user": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "user_username": "john_doe",
+    "message": "What should I do if there's a fire in my building?",
+    "response": "🔥 **FIRE EMERGENCY PROTOCOL:**\n\n1. **IMMEDIATE ACTION**: Call emergency services (911) immediately...",
+    "timestamp": "2025-04-15T12:00:33Z"
+  }
+]
+```
+
+### Get Quick Emergency Responses
+
+**Endpoint**: `GET /chatbot/sessions/quick_responses/`
+
+**Description**: Get predefined quick responses for common emergency scenarios
+
+**Authentication**: Required
+
+**Response (200 OK)**:
+
+```json
+{
+  "fire": "🔥 FIRE EMERGENCY:\n1. Call emergency services immediately\n2. Evacuate the building safely\n3. Stay low to avoid smoke\n4. Don't use elevators\n5. Meet at designated assembly point",
+  "medical": "🚑 MEDICAL EMERGENCY:\n1. Call emergency services (911)\n2. Check for responsiveness\n3. Check breathing and pulse\n4. Apply first aid if trained\n5. Stay with the person until help arrives",
+  "police": "🚓 POLICE EMERGENCY:\n1. Call emergency services immediately\n2. Stay in a safe location\n3. Provide clear location details\n4. Follow dispatcher instructions\n5. Stay on the line until help arrives",
+  "natural_disaster": "🌪️ NATURAL DISASTER:\n1. Follow local emergency broadcasts\n2. Take shelter immediately\n3. Stay away from windows\n4. Have emergency supplies ready\n5. Follow evacuation orders if given"
+}
+```
+
+### Clear Chat History
+
+**Endpoint**: `DELETE /chatbot/sessions/clear_history/`
+
+**Description**: Clear all chat history for the current user
+
+**Authentication**: Required
+
+**Response (200 OK)**:
+
+```json
+{
+  "message": "Cleared 15 chat sessions"
+}
+```
+
+### Get Chat Statistics
+
+**Endpoint**: `GET /chatbot/stats/`
+
+**Description**: Get chat usage statistics for the current user
+
+**Authentication**: Required
+
+**Response (200 OK)**:
+
+```json
+{
+  "total_sessions": 47,
+  "recent_sessions": 8,
+  "user_role": "CITIZEN"
+}
+```
+
+### List All Chat Sessions
+
+**Endpoint**: `GET /chatbot/sessions/`
+
+**Description**: Get a paginated list of all chat sessions for the current user
+
+**Authentication**: Required
+
+**Response (200 OK)**:
+
+```json
+{
+  "count": 47,
+  "next": "http://localhost:8000/api/chatbot/sessions/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": "13fa85f64-5717-4562-b3fc-2c963f66afb5",
+      "user": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "user_username": "john_doe",
+      "message": "How do I perform CPR?",
+      "response": "🚑 **CPR (Cardiopulmonary Resuscitation) Steps:**...",
+      "timestamp": "2025-04-15T12:05:33Z"
+    }
+  ]
+}
+```
+
+### Get Specific Chat Session
+
+**Endpoint**: `GET /chatbot/sessions/{id}/`
+
+**Description**: Retrieve details of a specific chat session
+
+**Authentication**: Required
+
+**Response (200 OK)**:
+
+```json
+{
+  "id": "13fa85f64-5717-4562-b3fc-2c963f66afb5",
+  "user": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "user_username": "john_doe",
+  "message": "How do I perform CPR?",
+  "response": "🚑 **CPR (Cardiopulmonary Resuscitation) Steps:**\n\n**FIRST: Call emergency services (911) immediately**\n\n**For Adults:**\n1. **Check Responsiveness**: Tap shoulders, shout \"Are you okay?\"\n2. **Position**: Place on firm, flat surface\n3. **Hand Placement**: Heel of hand on center of chest, between nipples\n4. **Compressions**: Push hard and fast, at least 2 inches deep\n5. **Rate**: 100-120 compressions per minute\n6. **Count**: 30 compressions, then 2 rescue breaths\n7. **Continue**: Until emergency services arrive\n\n**Important**: Only perform if trained. If untrained, focus on continuous chest compressions.\n\nIs this an emergency situation happening now?",
+  "timestamp": "2025-04-15T12:05:33Z"
+}
+```
+
 ## Notifications
 
 ### List User Notifications
@@ -859,7 +1055,11 @@ Authorization: Firebase {firebase_id_token}
   ],
   "ongoing_emergencies": 1,
   "total_reports": 3,
-  "resolved_reports": 2
+  "resolved_reports": 2,
+  "chat_sessions": {
+    "total": 47,
+    "recent": 8
+  }
 }
 ```
 
@@ -904,128 +1104,137 @@ Authorization: Firebase {firebase_id_token}
 }
 ```
 
-## Social Media Integration
+## Error Handling
 
-### Post to Social Media
+### Standard Error Responses
 
-**Endpoint**: `POST /social/post/`
+All endpoints return standardized error responses:
 
-**Description**: Post emergency information to social media platforms
-
-**Authentication**: Required (Admin or emergency services only)
-
-**Request Body (multipart/form-data)**:
-
-- `content`: Text content for the post
-- `media_file`: Image or video file
-- `platforms`: Array of platforms (FACEBOOK, TELEGRAM, DISCORD)
-
-**Response (200 OK)**:
-
+**400 Bad Request**:
 ```json
 {
-  "message": "Posted to all social media platforms",
-  "results": [
-    {
-      "platform": "FACEBOOK",
-      "status": "success"
-    },
-    {
-      "platform": "TELEGRAM",
-      "status": "success"
-    },
-    {
-      "platform": "DISCORD",
-      "status": "success"
-    }
-  ]
-}
-```
-
-## Analytics
-
-### Global Analytics
-
-**Endpoint**: `GET /analytics/global/?days=30`
-
-**Description**: Get system-wide analytics data
-
-**Authentication**: Required (Admin or emergency services only)
-
-**Query Parameters**:
-
-- `days`: Number of days to include in the analysis (default: 30)
-
-**Response (200 OK)**:
-
-```json
-{
-  "period": "Last 30 days",
-  "active_users": 1250,
-  "new_users": 380,
-  "emergency_reports": 425,
-  "resolved_emergencies": 398,
-  "resolution_rate": 93.65,
-  "emergency_types": {
-    "EARTHQUAKE": {
-      "count": 245,
-      "avg_response_time": 15.3,
-      "resolution_rate": 92.2
-    },
-    "FIRE": {
-      "count": 120,
-      "avg_response_time": 12.5,
-      "resolution_rate": 96.7
-    }
+  "error": "Invalid request data",
+  "details": {
+    "message": ["This field is required."]
   }
 }
 ```
 
-### Regional Analytics
-
-**Endpoint**: `GET /analytics/regional/?days=30`
-
-**Description**: Get analytics data by region
-
-**Authentication**: Required (Emergency services only)
-
-**Query Parameters**:
-
-- `days`: Number of days to include in the analysis (default: 30)
-
-**Response (200 OK)**:
-
+**401 Unauthorized**:
 ```json
 {
-  "period": "Last 30 days",
-  "regions": {
-    "Izmir-Konak": {
-      "emergency_count": 85,
-      "response_time_avg": 13.2
-    },
-    "Izmir-Bornova": {
-      "emergency_count": 62,
-      "response_time_avg": 14.8
-    }
+  "detail": "Authentication credentials were not provided."
+}
+```
+
+**403 Forbidden**:
+```json
+{
+  "detail": "You do not have permission to perform this action."
+}
+```
+
+**404 Not Found**:
+```json
+{
+  "detail": "Not found."
+}
+```
+
+**500 Internal Server Error**:
+```json
+{
+  "error": "Internal server error",
+  "message": "An unexpected error occurred"
+}
+```
+
+### Chatbot-Specific Errors
+
+**AI Service Unavailable**:
+```json
+{
+  "error": "Failed to process message",
+  "details": "I'm sorry, I'm having trouble processing your request right now. For immediate emergencies, please call your local emergency services."
+}
+```
+
+**Empty Message**:
+```json
+{
+  "error": "Message cannot be empty"
+}
+```
+
+## Rate Limiting
+
+- **Chatbot endpoints**: 60 requests per minute per user
+- **Emergency reporting**: 10 requests per minute per user  
+- **Authentication endpoints**: 20 requests per minute per IP
+- **General API**: 100 requests per minute per authenticated user
+
+## Webhooks
+
+### Emergency Status Updates
+
+ResQ can send webhook notifications when emergency statuses change:
+
+**Webhook URL**: Configure in admin panel
+
+**Payload Example**:
+```json
+{
+  "event": "emergency_status_changed",
+  "emergency_id": "6fa85f64-5717-4562-b3fc-2c963f66afae",
+  "old_status": "PENDING",
+  "new_status": "RESPONDING",
+  "timestamp": "2025-04-15T10:45:33Z",
+  "location": {
+    "latitude": 38.4192,
+    "longitude": 27.1287
   }
 }
 ```
 
-### User Analytics
+## SDK and Integration
 
-**Endpoint**: `GET /analytics/user/?days=30`
+### JavaScript SDK
 
-**Description**: Get analytics data for the current user
+```javascript
+// Initialize ResQ client
+const resq = new ResQClient({
+  baseURL: 'http://localhost:8000/api/',
+  token: 'your_jwt_token'
+});
 
-**Authentication**: Required
+// Send chat message
+const response = await resq.chatbot.sendMessage('What should I do in an earthquake?');
+console.log(response.response);
 
-**Query Parameters**:
+// Report emergency
+const emergency = await resq.emergency.report({
+  description: 'Building collapse',
+  location: { latitude: 38.4192, longitude: 27.1287 },
+  reporter_type: 'VICTIM'
+});
+```
 
-- `days`: Number of days to include in the analysis (default: 30)
+### Mobile SDK (React Native)
 
-**Response (200 OK)**:
+```javascript
+import { ResQMobileClient } from 'resq-mobile-sdk';
 
-```json
-{
-  "period": "Last 30 days",
+const client = new ResQMobileClient({
+  baseURL: 'http://localhost:8000/api/',
+  firebaseConfig: { /* Firebase config */ }
+});
+
+// Chat with AI
+const chatResponse = await client.chat('How to treat burns?');
+
+// Send location
+await client.location.update({
+  latitude: 38.4192,
+  longitude: 27.1287
+});
 ```

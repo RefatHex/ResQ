@@ -33,3 +33,4 @@ venv.bak/
 *.swp
 *.swo
 .DS_Store
+users/migrations/__pycache__/0002_user_location.cpython-312.pyc
