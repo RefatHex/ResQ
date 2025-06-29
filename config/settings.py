@@ -212,11 +212,12 @@ AUTHENTICATION_BACKENDS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'firebase_auth.authentication.FirebaseAuthentication',  # Re-enable after migration
+        'firebase_auth.authentication.FirebaseAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_TRAILING_SLASH': True,  # Add this to ensure DRF uses trailing slashes
 }
 
 from datetime import timedelta
@@ -231,3 +232,7 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY,                      # Use Django's SECRET_KEY
     'AUTH_HEADER_TYPES': ('Bearer',),               # Authorization header type
 }
+
+# URL Settings
+APPEND_SLASH = True
+USE_TRAILING_SLASHES = True

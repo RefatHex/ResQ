@@ -1,6 +1,5 @@
 import uuid
 from django.db import models
-from location.models import Location
 from users.models import User
 
 class EmergencyReport(models.Model):
@@ -18,7 +17,6 @@ class EmergencyReport(models.Model):
     reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports')
     reporter_type = models.CharField(max_length=20, choices=REPORTER_TYPE_CHOICES)
     description = models.TextField() 
-    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='emergency_reports')
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     is_emergency = models.BooleanField(default=False)  
@@ -33,12 +31,6 @@ class EmergencyReport(models.Model):
 
     def __str__(self):
         return f"{self.reporter.username} - {self.timestamp}"
-
-    def save(self, *args, **kwargs):
-        if self.location and hasattr(self.location, 'latitude') and hasattr(self.location, 'longitude'):
-            self.latitude = self.location.latitude
-            self.longitude = self.location.longitude
-        super().save(*args, **kwargs)
 
 
 class EmergencyTag(models.Model):

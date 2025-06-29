@@ -1,6 +1,5 @@
 # emergency/serializers.py
 from rest_framework import serializers
-from location.models import Location
 from .models import EmergencyReport, EmergencyTag
 
 class EmergencyTagSerializer(serializers.ModelSerializer):
@@ -10,7 +9,6 @@ class EmergencyTagSerializer(serializers.ModelSerializer):
 
 class EmergencyReportSerializer(serializers.ModelSerializer):
     reporter = serializers.PrimaryKeyRelatedField(read_only=True)
-    location = serializers.PrimaryKeyRelatedField(queryset=Location.objects.all())
     tags = EmergencyTagSerializer(many=True, required=False, read_only=True)
     tag_ids = serializers.ListField(child=serializers.UUIDField(), write_only=True, required=False)
     status_display = serializers.SerializerMethodField(read_only=True)
@@ -19,7 +17,7 @@ class EmergencyReportSerializer(serializers.ModelSerializer):
         model = EmergencyReport
         fields = [
             'id', 'reporter', 'reporter_type', 'description',
-            'location', 'is_emergency', 'status', 'status_display', 
+            'latitude', 'longitude', 'is_emergency', 'status', 'status_display', 
             'timestamp', 'tags', 'tag_ids'
         ]
     

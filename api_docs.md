@@ -425,7 +425,8 @@ Authorization: Firebase {firebase_id_token}
   "tags": [
     "3fa85f64-5717-4562-b3fc-2c963f66afab",
     "5fa85f64-5717-4562-b3fc-2c963f66afad"
-  ]
+  ],
+  "media_file": "[binary file - optional]"
 }
 ```
 
@@ -458,87 +459,196 @@ Authorization: Firebase {firebase_id_token}
 }
 ```
 
-### List Emergencies
+### Create Standard Report
 
-**Endpoint**: `GET /emergency/reports/`
+**Endpoint**: `POST /emergency/reports/`
 
-**Description**: Get a list of emergency reports
-
-**Authentication**: Required
-
-**Query Parameters**:
-
-- `status`: Filter by status (PENDING, RESPONDING, ON_SCENE, RESOLVED)
-- `is_emergency`: Filter by emergency flag (true/false)
-- `reporter_type`: Filter by reporter type (VICTIM, SPECTATOR)
-
-**Response (200 OK)**:
-
-```json
-[
-  {
-    "id": "6fa85f64-5717-4562-b3fc-2c963f66afae",
-    "reporter": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "reporter_type": "VICTIM",
-    "description": "Building collapsed, need urgent help",
-    "latitude": 38.4192,
-    "longitude": 27.1287,
-    "status": "PENDING",
-    "is_emergency": true,
-    "tags": [
-      {
-        "id": "3fa85f64-5717-4562-b3fc-2c963f66afab",
-        "name": "Building Collapse",
-        "emergency_type": "EARTHQUAKE"
-      },
-      {
-        "id": "5fa85f64-5717-4562-b3fc-2c963f66afad",
-        "name": "Trapped Individuals",
-        "emergency_type": "DISASTER"
-      }
-    ],
-    "timestamp": "2025-04-15T10:30:33Z"
-  }
-]
-```
-
-### Get Emergency Details
-
-**Endpoint**: `GET /emergency/reports/{id}/`
-
-**Description**: Get details of a specific emergency
+**Description**: Create a standard emergency report
 
 **Authentication**: Required
 
-**Response (200 OK)**:
+**Request Body**:
 
 ```json
 {
-  "id": "6fa85f64-5717-4562-b3fc-2c963f66afae",
-  "reporter": {
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "username": "john_doe",
-    "phone_number": "+905551234567"
-  },
-  "reporter_type": "VICTIM",
-  "description": "Building collapsed, need urgent help",
-  "latitude": 38.4192,
-  "longitude": 27.1287,
+  "reporter_type": "SPECTATOR",
+  "description": "Traffic accident on main highway",
+  "location": "3fa85f64-5717-4562-b3fc-2c963f66afa8",
+  "is_emergency": true,
+  "tag_ids": ["4fa85f64-5717-4562-b3fc-2c963f66afac"]
+}
+```
+
+**Response (201 Created)**:
+
+```json
+{
+  "id": "7fa85f64-5717-4562-b3fc-2c963f66afaf",
+  "reporter": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "reporter_type": "SPECTATOR",
+  "description": "Traffic accident on main highway",
+  "location": "3fa85f64-5717-4562-b3fc-2c963f66afa8",
+  "latitude": 38.418,
+  "longitude": 27.129,
   "status": "PENDING",
   "is_emergency": true,
   "tags": [
     {
-      "id": "3fa85f64-5717-4562-b3fc-2c963f66afab",
-      "name": "Building Collapse",
-      "emergency_type": "EARTHQUAKE"
-    },
-    {
-      "id": "5fa85f64-5717-4562-b3fc-2c963f66afad",
-      "name": "Trapped Individuals",
-      "emergency_type": "DISASTER"
+      "id": "4fa85f64-5717-4562-b3fc-2c963f66afac",
+      "name": "Traffic Accident",
+      "emergency_type": "TRAFFIC"
     }
   ],
-  "timestamp": "2025-04-15T10:30:33Z"
+  "timestamp": "2025-04-15T11:30:33Z"
+}
+```
+
+### Non-Emergency Report
+
+**Endpoint**: `POST /emergency/reports/`
+
+**Description**: Create a non-emergency report (such as infrastructure issues)
+
+**Authentication**: Required
+
+**Request Body**:
+
+```json
+{
+  "reporter_type": "SPECTATOR",
+  "description": "Damaged street light on 5th Avenue",
+  "location": "3fa85f64-5717-4562-b3fc-2c963f66afa9",
+  "is_emergency": false,
+  "tag_ids": []
+}
+```
+
+**Response (201 Created)**:
+
+```json
+{
+  "id": "8fa85f64-5717-4562-b3fc-2c963f66afb0",
+  "reporter": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "reporter_type": "SPECTATOR",
+  "description": "Damaged street light on 5th Avenue",
+  "location": "3fa85f64-5717-4562-b3fc-2c963f66afa9",
+  "latitude": 38.4175,
+  "longitude": 27.1295,
+  "status": "PENDING",
+  "is_emergency": false,
+  "tags": [],
+  "timestamp": "2025-04-15T12:30:33Z"
+}
+```
+
+### Anonymous Report
+
+**Endpoint**: `POST /emergency/reports/`
+
+**Description**: Create an anonymous report (reporter details are masked in response)
+
+**Authentication**: Required (but reporter identity is protected)
+
+**Request Body**:
+
+```json
+{
+  "reporter_type": "SPECTATOR",
+  "description": "Suspicious activity in abandoned building",
+  "location": "3fa85f64-5717-4562-b3fc-2c963f66afb0",
+  "is_emergency": true,
+  "is_anonymous": true,
+  "tag_ids": ["5fa85f64-5717-4562-b3fc-2c963f66afae"]
+}
+```
+
+**Response (201 Created)**:
+
+```json
+{
+  "id": "9fa85f64-5717-4562-b3fc-2c963f66afb1",
+  "reporter": "ANONYMOUS",
+  "reporter_type": "SPECTATOR",
+  "description": "Suspicious activity in abandoned building",
+  "location": "3fa85f64-5717-4562-b3fc-2c963f66afb0",
+  "latitude": 38.4165,
+  "longitude": 27.1305,
+  "status": "PENDING",
+  "is_emergency": true,
+  "tags": [
+    {
+      "id": "5fa85f64-5717-4562-b3fc-2c963f66afae",
+      "name": "Suspicious Activity",
+      "emergency_type": "OTHER"
+    }
+  ],
+  "timestamp": "2025-04-15T13:30:33Z"
+}
+```
+
+### Multiple Location Reports
+
+**Endpoint**: `POST /emergency/reports/multi_location/`
+
+**Description**: Report an emergency affecting multiple locations (e.g., wildfire)
+
+**Authentication**: Required
+
+**Request Body**:
+
+```json
+{
+  "reporter_type": "SPECTATOR",
+  "description": "Wildfire spreading across multiple areas",
+  "locations": [
+    {
+      "latitude": 38.415,
+      "longitude": 27.127,
+      "address": "North forest area"
+    },
+    {
+      "latitude": 38.414,
+      "longitude": 27.128,
+      "address": "East forest region"
+    }
+  ],
+  "tag_ids": ["3fa85f64-5717-4562-b3fc-2c963f66afa5"],
+  "is_emergency": true
+}
+```
+
+**Response (201 Created)**:
+
+```json
+{
+  "main_report": {
+    "id": "10fa85f64-5717-4562-b3fc-2c963f66afb2",
+    "reporter": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "reporter_type": "SPECTATOR",
+    "description": "Wildfire spreading across multiple areas",
+    "location": "6fa85f64-5717-4562-b3fc-2c963f66afc1",
+    "latitude": 38.415,
+    "longitude": 27.127,
+    "status": "PENDING",
+    "is_emergency": true,
+    "tags": [
+      {
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa5",
+        "name": "Wildfire",
+        "emergency_type": "FIRE"
+      }
+    ],
+    "timestamp": "2025-04-15T14:30:33Z"
+  },
+  "additional_reports": [
+    {
+      "id": "11fa85f64-5717-4562-b3fc-2c963f66afb3",
+      "location": "6fa85f64-5717-4562-b3fc-2c963f66afc2",
+      "latitude": 38.414,
+      "longitude": 27.128
+    }
+  ],
+  "total_locations": 2
 }
 ```
 
@@ -1111,6 +1221,7 @@ ResQ includes an intelligent AI chatbot powered by Google's Gemini AI that provi
 All endpoints return standardized error responses:
 
 **400 Bad Request**:
+
 ```json
 {
   "error": "Invalid request data",
@@ -1121,6 +1232,7 @@ All endpoints return standardized error responses:
 ```
 
 **401 Unauthorized**:
+
 ```json
 {
   "detail": "Authentication credentials were not provided."
@@ -1128,6 +1240,7 @@ All endpoints return standardized error responses:
 ```
 
 **403 Forbidden**:
+
 ```json
 {
   "detail": "You do not have permission to perform this action."
@@ -1135,6 +1248,7 @@ All endpoints return standardized error responses:
 ```
 
 **404 Not Found**:
+
 ```json
 {
   "detail": "Not found."
@@ -1142,6 +1256,7 @@ All endpoints return standardized error responses:
 ```
 
 **500 Internal Server Error**:
+
 ```json
 {
   "error": "Internal server error",
@@ -1152,6 +1267,7 @@ All endpoints return standardized error responses:
 ### Chatbot-Specific Errors
 
 **AI Service Unavailable**:
+
 ```json
 {
   "error": "Failed to process message",
@@ -1160,6 +1276,7 @@ All endpoints return standardized error responses:
 ```
 
 **Empty Message**:
+
 ```json
 {
   "error": "Message cannot be empty"
@@ -1169,7 +1286,7 @@ All endpoints return standardized error responses:
 ## Rate Limiting
 
 - **Chatbot endpoints**: 60 requests per minute per user
-- **Emergency reporting**: 10 requests per minute per user  
+- **Emergency reporting**: 10 requests per minute per user
 - **Authentication endpoints**: 20 requests per minute per IP
 - **General API**: 100 requests per minute per authenticated user
 
@@ -1182,6 +1299,7 @@ ResQ can send webhook notifications when emergency statuses change:
 **Webhook URL**: Configure in admin panel
 
 **Payload Example**:
+
 ```json
 {
   "event": "emergency_status_changed",
@@ -1203,38 +1321,229 @@ ResQ can send webhook notifications when emergency statuses change:
 ```javascript
 // Initialize ResQ client
 const resq = new ResQClient({
-  baseURL: 'http://localhost:8000/api/',
-  token: 'your_jwt_token'
+  baseURL: "http://localhost:8000/api/",
+  token: "your_jwt_token",
 });
 
 // Send chat message
-const response = await resq.chatbot.sendMessage('What should I do in an earthquake?');
+const response = await resq.chatbot.sendMessage(
+  "What should I do in an earthquake?"
+);
 console.log(response.response);
 
 // Report emergency
 const emergency = await resq.emergency.report({
-  description: 'Building collapse',
+  description: "Building collapse",
   location: { latitude: 38.4192, longitude: 27.1287 },
-  reporter_type: 'VICTIM'
+  reporter_type: "VICTIM",
 });
 ```
 
 ### Mobile SDK (React Native)
 
 ```javascript
-import { ResQMobileClient } from 'resq-mobile-sdk';
+import { ResQMobileClient } from "resq-mobile-sdk";
 
 const client = new ResQMobileClient({
-  baseURL: 'http://localhost:8000/api/',
-  firebaseConfig: { /* Firebase config */ }
+  baseURL: "http://localhost:8000/api/",
+  firebaseConfig: {
+    /* Firebase config */
+  },
 });
 
 // Chat with AI
-const chatResponse = await client.chat('How to treat burns?');
+const chatResponse = await client.chat("How to treat burns?");
 
 // Send location
 await client.location.update({
   latitude: 38.4192,
-  longitude: 27.1287
+  longitude: 27.1287,
 });
 ```
+
+## Social Media Integration
+
+ResQ can automatically share emergency reports to social media platforms to increase visibility and response time.
+
+### Social Post
+
+**Endpoint**: `POST /social/post/`
+
+**Description**: Post a message with a photo or video to social media platforms (Facebook, Telegram, Discord)
+
+**Authentication**: Required
+
+**Request Body** (multipart/form-data):
+
+```json
+{
+  "content": "Emergency alert: Flooding in downtown area",
+  "file": [binary file - photo or video]
+}
+```
+
+**Response (200 OK)**:
+
+```json
+{
+  "message": "Posted to all social media platforms",
+  "results": [
+    {
+      "platform": "FACEBOOK",
+      "status": "success"
+    },
+    {
+      "platform": "TELEGRAM",
+      "status": "success"
+    },
+    {
+      "platform": "DISCORD",
+      "status": "success"
+    }
+  ]
+}
+```
+
+**Possible Errors**:
+
+- 400 Bad Request: If no file is provided
+- 500 Internal Server Error: If there's an issue posting to any platform
+
+### Social Media Emergency Integration
+
+When reporting emergencies using the emergency reporting endpoint, emergency information is automatically shared to social media platforms.
+
+The existing emergency reporting endpoint (`POST /emergency/reports/report_emergency/`) now includes social media integration.
+
+**Additions to Emergency Reporting**:
+
+- You can now include a `media_file` in the multipart/form-data request to attach media to the social posts
+- Emergency details, including description, type, and location will be formatted and shared on Facebook, Telegram, and Discord
+- The response includes results of social media posting attempts
+
+**Example Request** (multipart/form-data):
+
+```json
+{
+  "reporter_type": "VICTIM",
+  "description": "Building collapsed, need urgent help",
+  "location": {
+    "latitude": 38.4192,
+    "longitude": 27.1287,
+    "address": "123 Main St, Izmir, Turkey"
+  },
+  "tags": [
+    "3fa85f64-5717-4562-b3fc-2c963f66afab",
+    "5fa85f64-5717-4562-b3fc-2c963f66afad"
+  ],
+  "media_file": [binary file - photo or video]
+}
+```
+
+**Response (201 Created)**:
+
+```json
+{
+  "id": "6fa85f64-5717-4562-b3fc-2c963f66afae",
+  "reporter": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "reporter_type": "VICTIM",
+  "description": "Building collapsed, need urgent help",
+  "location": "5fa85f64-5717-4562-b3fc-2c963f66afaa",
+  "latitude": 38.4192,
+  "longitude": 27.1287,
+  "status": "PENDING",
+  "is_emergency": true,
+  "tags": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afab",
+      "name": "Building Collapse",
+      "emergency_type": "EARTHQUAKE"
+    },
+    {
+      "id": "5fa85f64-5717-4562-b3fc-2c963f66afad",
+      "name": "Trapped Individuals",
+      "emergency_type": "DISASTER"
+    }
+  ],
+  "timestamp": "2025-04-15T10:30:33Z",
+  "social_post_results": {
+    "facebook": "Post ID or URL",
+    "telegram": "Message ID",
+    "discord": "Message Link"
+  }
+}
+```
+
+### Get Social Post Status
+
+**Endpoint**: `GET /social/posts/{id}/`
+
+**Description**: Get the status of a specific social media post
+
+**Authentication**: Required
+
+**Response (200 OK)**:
+
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa9",
+  "platform": "FACEBOOK",
+  "content": "Emergency alert: Flooding in downtown area",
+  "photo": "http://localhost:8000/media/social/photos/flood.jpg",
+  "video": null,
+  "status": "POSTED",
+  "timestamp": "2025-04-15T14:25:33Z"
+}
+```
+
+### List Social Posts
+
+**Endpoint**: `GET /social/posts/`
+
+**Description**: Get a list of all social media posts made by the user
+
+**Authentication**: Required
+
+**Response (200 OK)**:
+
+```json
+[
+  {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa9",
+    "platform": "FACEBOOK",
+    "content": "Emergency alert: Flooding in downtown area",
+    "photo": "http://localhost:8000/media/social/photos/flood.jpg",
+    "video": null,
+    "status": "POSTED",
+    "timestamp": "2025-04-15T14:25:33Z"
+  },
+  {
+    "id": "4fa85f64-5717-4562-b3fc-2c963f66afab",
+    "platform": "TELEGRAM",
+    "content": "Emergency alert: Flooding in downtown area",
+    "photo": "http://localhost:8000/media/social/photos/flood.jpg",
+    "video": null,
+    "status": "POSTED",
+    "timestamp": "2025-04-15T14:25:34Z"
+  },
+  {
+    "id": "5fa85f64-5717-4562-b3fc-2c963f66afac",
+    "platform": "DISCORD",
+    "content": "Emergency alert: Flooding in downtown area",
+    "photo": "http://localhost:8000/media/social/photos/flood.jpg",
+    "video": null,
+    "status": "POSTED",
+    "timestamp": "2025-04-15T14:25:35Z"
+  }
+]
+```
+
+### Social Media Format
+
+**Social Media Post Format**:
+
+- **Facebook**: Supports text, photos, and videos. Use the `/social/post/` endpoint to share.
+- **Telegram**: Supports text, photos, and videos. Use the `/social/post/` endpoint to share.
+- **Discord**: Supports text, photos, and videos. Use the `/social/post/` endpoint to share.
+
+**Note**: Ensure compliance with each platform's content policies and guidelines.

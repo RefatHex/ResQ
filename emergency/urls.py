@@ -9,11 +9,13 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.register(r'tags', EmergencyTagViewSet)
+# Ensure trailing slashes for viewsets
 router.register(r'reports', EmergencyReportViewSet, basename='emergencyreport')
+router.register(r'tags', EmergencyTagViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    # Add trailing slashes to other URLs
     path('nearby/', NearbyEmergenciesView.as_view(), name='nearby-emergencies'),
     path('stats/tags/', EmergencyStatsByTagView.as_view(), name='emergency-tag-stats'),
 ]
